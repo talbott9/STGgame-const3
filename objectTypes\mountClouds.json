@@ -1,0 +1,21 @@
+{
+	"name": "mountClouds",
+	"plugin-id": "TiledBg",
+	"sid": 540435278862348,
+	"isGlobal": false,
+	"instanceVariables": [],
+	"behaviorTypes": [],
+	"effectTypes": [],
+	"image": {
+		"width": 1020,
+		"height": 600,
+		"originX": 0.5,
+		"originY": 0.5,
+		"originalSource": "",
+		"exportFormat": "lossless",
+		"exportQuality": 0.8,
+		"imageSpriteId": 7799053,
+		"useCollisionPoly": true,
+		"tag": ""
+	}
+}
