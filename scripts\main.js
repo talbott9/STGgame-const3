@@ -40,6 +40,8 @@ function yeniseiMove(player, keyboard, playerSpeed, dt)
 		}
 }
 
+const NUM_PROJECTILES = 100;
+
 function hildegardeMove(hildegarde, keyboard) {
     if(hildegarde.death)
       hildegarde.animationFrame = 7;
@@ -57,6 +59,7 @@ function hildegardeMove(hildegarde, keyboard) {
       if(hildegarde.attackDirectionTicks % 5 == 0)
 		hildegarde.attackDirection++;
     }
+	
 		if(hildegarde.attackDirection > 5)
 		hildegarde.attackDirection = 5;
 		if(hildegarde.aimed) {
@@ -76,7 +79,7 @@ function hildegardeMove(hildegarde, keyboard) {
     case 5: hildegarde.animationFrame = 5; break;
     }
 	}
-
+	
 }
 
 function moveBackground(background, number) {
@@ -90,6 +93,8 @@ function moveBackground(background, number) {
 
 let backgroundTicks = 0;
 let initialized = false;
+	const HGProjs = [];
+	const HGShootProj = [];
 function Tick(runtime)
 {
 	// Code to run every tick
@@ -105,9 +110,16 @@ function Tick(runtime)
 	const mountainBack = runtime.objects.mountBack.getFirstInstance();	
 	const mountainFront = runtime.objects.mountFront.getFirstInstance();	
 	const mountainClouds = runtime.objects.mountClouds.getFirstInstance();
+	const HGArrow = runtime.objects.HGArrow.getFirstInstance();	
 	
 	if(!initialized)  {
+		for(let i = 0; i < NUM_PROJECTILES; i++) 
+	HGShootProj[i] = false;
+	HGArrow.x = hildegarde.x;
+	HGArrow.y = hildegarde.y;
+	hildegarde.projectilesShot = 0;
 	initialized = true;
+	hildegarde.projectileTicks = 0;
 	hildegarde.attackDirection = 0;
 	hildegarde.attackDirectionTicks = 0;
 	hildegarde.death = false;
@@ -119,7 +131,7 @@ function Tick(runtime)
 	
 	backgroundTicks++;
 
-	console.log(hildegarde.attackDirectionTicks);
+	console.log(hildegarde.projectilesShot + "/" + HGShootProj[hildegarde.projectilesShot]);
 
 	moveBackground(mountainClouds, 0.1);
 	moveBackground(mountainBack, 1);
@@ -134,6 +146,24 @@ function Tick(runtime)
 		
 	yeniseiMove(yenisei, keyboard, playerSpeed, dt);
 	hildegardeMove(hildegarde, keyboard);
+	
+	if(keyboard.isKeyDown("KeyZ")){
+		hildegarde.projectileTicks++;
+		if(hildegarde.projectileTicks % 10 == 0) { 
+		hildegarde.projectilesShot++;
+		if(hildegarde.projectilesShot > NUM_PROJECTILES)
+			hildegarde.projectilesShot = 0;
+		HGProjs[hildegarde.projectilesShot] = runtime.objects.HGArrow.createInstance(4, hildegarde.x, hildegarde.y);
+		HGShootProj[hildegarde.projectilesShot] = true;
+    }
+    }
+	
+	for(let i = 0; i < NUM_PROJECTILES; i++) {
+		if(HGShootProj[i]) {
+			HGProjs[i].y -= 6;
+			HGProjs[i].angleDegrees = -90;
+		}
+	}
 	lombard.x = yenisei.x+4;
 	hildegarde.x = yenisei.x-10;
 	if(yenisei.animationFrame == 10)
