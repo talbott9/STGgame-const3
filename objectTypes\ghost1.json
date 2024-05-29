@@ -1,0 +1,74 @@
+{
+	"name": "ghost1",
+	"plugin-id": "Sprite",
+	"sid": 469128861294733,
+	"isGlobal": false,
+	"instanceVariables": [],
+	"behaviorTypes": [],
+	"effectTypes": [],
+	"animations": {
+		"items": [
+			{
+				"frames": [
+					{
+						"width": 25,
+						"height": 25,
+						"originX": 0.5,
+						"originY": 0.5,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"imageSpriteId": 5669525,
+						"collisionPoly": {
+							"points": [
+								0.36,
+								0,
+								0.64,
+								0,
+								0.76,
+								0.04,
+								0.96,
+								0.24,
+								1,
+								0.36,
+								1,
+								0.64,
+								0.96,
+								0.76,
+								0.76,
+								0.96,
+								0.64,
+								1,
+								0.36,
+								1,
+								0.24,
+								0.96,
+								0.04,
+								0.76,
+								0,
+								0.64,
+								0,
+								0.36,
+								0.04,
+								0.24,
+								0.24,
+								0.04
+							]
+						},
+						"useCollisionPoly": true,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 227704893544718,
+				"name": "Animation 1",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 5
+			}
+		],
+		"subfolders": []
+	}
+}
