@@ -272,30 +272,16 @@ function bulletsOutOfScreen(ghost) {
 	return outOfScreen;
 }
 
-let levelTicks = 0;
-let backgroundTicks = 0;
-let initialized = false;
-const HGProjs = [];
-const HGShootProj = [];
-const ghost1 = [];
-const ghost1Exists = [];
-const ghost1Projs = [];
-const ghost1ShootProj = [];
+let actualScore = 0; let score = 0; let levelTicks = 0; let backgroundTicks = 0; let initialized = false; let showedStartSign = false; const HGProjs = []; const HGShootProj = []; const ghost1 = []; const ghost1Exists = []; const ghost1Projs = []; const ghost1ShootProj = []; let difficulty =0;
+
 function Tick(runtime)
 {
 	// Code to run every tick
-	const keyboard = runtime.keyboard;
-	const dt = runtime.dt;
-	const floor1 = runtime.objects.floor1.getFirstInstance();
-	const floor1Sup = runtime.objects.floor1Sup.getFirstInstance();	
-	const yenisei = runtime.objects.yenisei.getFirstInstance();	
-	const hildegarde = runtime.objects.hildegarde.getFirstInstance();	
-	const lombard = runtime.objects.lombard.getFirstInstance();
-	const playerSpeed = 500;
-	const mountainSky = runtime.objects.mountSky.getFirstInstance();
-	const mountainBack = runtime.objects.mountBack.getFirstInstance();	
+	const keyboard = runtime.keyboard; const dt = runtime.dt;const floor1 = runtime.objects.floor1.getFirstInstance();const floor1Sup = runtime.objects.floor1Sup.getFirstInstance();	const yenisei = runtime.objects.yenisei.getFirstInstance();	const hildegarde = runtime.objects.hildegarde.getFirstInstance();	let HGBox = {x:hildegarde.x+hildegarde.width/2, y:hildegarde.y+hildegarde.h/2, width:6, height:6};const lombard = runtime.objects.lombard.getFirstInstance();const playerSpeed = 500;const mountainSky = runtime.objects.mountSky.getFirstInstance();const mountainBack = runtime.objects.mountBack.getFirstInstance();	
 	const mountainFront = runtime.objects.mountFront.getFirstInstance();	
 	const mountainClouds = runtime.objects.mountClouds.getFirstInstance();
+	const startSign = runtime.objects.Start.getFirstInstance();
+	const scoreText = runtime.objects.Score.getFirstInstance();
 	
 	if(!initialized)  {
 		for(let i = 0; i < NUM_PROJECTILES; i++) {
@@ -314,16 +300,33 @@ function Tick(runtime)
 	mountainBack.supplement = runtime.objects.mountBack2.getFirstInstance();	
 	mountainFront.supplement = runtime.objects.mountFront2.getFirstInstance();	
 	mountainClouds.supplement = runtime.objects.mountClouds2.getFirstInstance();
+	startSign.moved = false;
+	startSign.changeMove = false;
+	}
+	
+	if(score < actualScore)
+		score += 20;
+	if(!hildegarde.death)
+		scoreText.text = "Score: " + score;
+	else {
+		scoreText.sizePt = 50;
+		if(score < 100)scoreText.x = SCREEN_WIDTH/2-SCREEN_WIDTH/6; else if(score < 1000) scoreText.x = SCREEN_WIDTH/2-SCREEN_WIDTH/5; else if(score < 10000) scoreText.x = SCREEN_WIDTH/2-SCREEN_WIDTH/5; else if(score >= 10000) scoreText.x = SCREEN_WIDTH/2-SCREEN_WIDTH/4;
+		scoreText.y = SCREEN_HEIGHT/2-SCREEN_HEIGHT/6;
+		scoreText.text = "Score: " + score;
+		startSign.text = "Thank you for playing!"; startSign.sizePt = 20; startSign.fontColor = [255, 255, 255]; startSign.x = SCREEN_WIDTH/2-SCREEN_WIDTH/6+5; startSign.y = scoreText.y + 100;
 	}
 	
 	backgroundTicks++;
 	levelTicks++;
+	
+	HGBox.x = hildegarde.x;
+	HGBox.y = hildegarde.y;
+	HGBox.width = 8;
+	HGBox.height = 8;
 
 	//console.log(hildegarde.projectilesShot + "/" + HGShootProj[hildegarde.projectilesShot]);
 
-	moveBackground(mountainClouds, 0.1);
-	moveBackground(mountainBack, 1);
-	moveBackground(mountainFront, 2);
+	moveBackground(mountainClouds, 0.1); moveBackground(mountainBack, 1); moveBackground(mountainFront, 2);
 	
 	floor1.x -= 5;
 	floor1Sup.x -= 5;
@@ -331,26 +334,53 @@ function Tick(runtime)
 		floor1.x = 0;
 	if(floor1Sup.x <= 0)
 		floor1Sup.x = SCREEN_WIDTH;
-		
+	
+	if(!showedStartSign) {
+	if(levelTicks < 90)
+		moveToXY(startSign, SCREEN_WIDTH/2-SCREEN_WIDTH/8, startSign.y, 15, false, true);
+	else if(levelTicks == 90) {
+		startSign.changeMove = true;
+	} else {
+		if(isOnScreen(startSign))
+			moveToXY(startSign, SCREEN_WIDTH+50, startSign.y, 15, false, true);
+		else {
+			//startSign.destroy();
+			showedStartSign = true;
+			}
+	}
+	}
+	let addPerWave = 5;	
 	if(levelTicks == 1) {
 	//levelTicks = 3000;
-	for(let i = 0; i < 10; i++)  {	
+	for(let i = 0; i < 10 + difficulty*addPerWave; i++)  {	
+	  if(!ghost1Exists[i]) {
 	  ghost1[i] = runtime.objects.ghost1.createInstance(4, 0 - i*(25 + 10), 0 - 25);
 	  createGhost1(ghost1[i]);
 	  ghost1Exists[i] = true;
 	  moveToXY(ghost1[i], ghost1[i].moveX, ghost1[i].moveY, 5, false, true);
 	  }
+	  }
      } 
 	 
 	 else if(levelTicks == 300) {
-	 	for(let i = 10; i < 20; i++)  {	
-	 	ghost1[i] = runtime.objects.ghost1.createInstance(4, SCREEN_WIDTH + (i-10)*(25 + 10), 0 - 25);
+	 	for(let i = 10 + difficulty*addPerWave; i < 20 + difficulty*addPerWave*2; i++)  {	
+			  if(!ghost1Exists[i]) {
+	 	ghost1[i] = runtime.objects.ghost1.createInstance(4, SCREEN_WIDTH + (i-20)*(25 + 10), 0 - 25);
 	  createGhost1(ghost1[i]);
 	  //ghost1[i].switchMove = true;
 	  ghost1Exists[i] = true;
 	  moveToXY(ghost1[i], ghost1[i].moveX, ghost1[i].moveY, 5, false, true);
 	  }
 	  }
+	  }
+	  
+	  else if(levelTicks == 600) {
+	  levelTicks = 0;
+	  	if(actualScore < 5000) difficulty = 0; else if(actualScore < 10000) difficulty = 1; else if(actualScore < 15000) difficulty = 2; //else if(actualScore < 10000) difficulty = 3;
+			
+		if(20+difficulty*addPerWave*2 > NUM_COMPS)
+			difficulty--;
+		}
 	 
 	 for(let i = 0; i < NUM_COMPS; i++)  {	
 	 if(ghost1Exists[i]) {
@@ -373,8 +403,8 @@ function Tick(runtime)
       }
 	  if(ghost1[i].projectileTicks % 60 == 0) {
 	  	ghost1[i].projs[ghost1[i].projectileTicks/60] = runtime.objects.bullet1.createInstance(4, ghost1[i].x, ghost1[i].y);
-	    ghost1[i].projs[ghost1[i].projectileTicks/60].moveX = hildegarde.x;
-		ghost1[i].projs[ghost1[i].projectileTicks/60].moveY = hildegarde.y;
+	    ghost1[i].projs[ghost1[i].projectileTicks/60].moveX = HGBox.x;
+		ghost1[i].projs[ghost1[i].projectileTicks/60].moveY = HGBox.y;
 		ghost1[i].shootProj[ghost1[i].projectileTicks/60] = true;
 	  }
 	  ghost1[i].projectileTicks++;
@@ -383,16 +413,23 @@ function Tick(runtime)
 	   for(let j = 0; j < NUM_PROJECTILES; j++) {
 	   if(ghost1[i].shootProj[j]) {
 	   	moveToXY(ghost1[i].projs[j], ghost1[i].projs[j].moveX, ghost1[i].projs[j].moveY, 5, false, false);
-		if(!isOnScreen(ghost1[i].projs[j])) {
-			ghost1[i].projs[j].destroy();
+		if(checkCollision(ghost1[i].projs[j], HGBox)) {
+			hildegarde.death = true;
 			ghost1[i].shootProj[j] = false;
 		}
+		
+		if(!isOnScreen(ghost1[i].projs[j])) {
+			ghost1[i].shootProj[j] = false;
+		}
+		if(!ghost1[i].shootProj[j])
+			ghost1[i].projs[j].destroy();
 	   } 
 	   	if(HGShootProj[j]) {
 	  		if(checkCollision(HGProjs[j], ghost1[i])) {
 				ghost1[i].enemyDead = true;
 				HGProjs[j].destroy();
 				HGShootProj[j] = false;
+				actualScore += 100;
 			}
 		}
 	  }
@@ -401,10 +438,16 @@ function Tick(runtime)
 	  	for(let j = 0; j < NUM_PROJECTILES; j++) {
 	   if(ghost1[i].shootProj[j]) {
 	   	moveToXY(ghost1[i].projs[j], ghost1[i].projs[j].moveX, ghost1[i].projs[j].moveY, 5, false, false);
-		if(!isOnScreen(ghost1[i].projs[j])) {
-			ghost1[i].projs[j].destroy();
+		if(checkCollision(ghost1[i].projs[j], HGBox)) {
+			hildegarde.death = true;
 			ghost1[i].shootProj[j] = false;
 		}
+		
+		if(!isOnScreen(ghost1[i].projs[j])) {
+			ghost1[i].shootProj[j] = false;
+		}
+		if(!ghost1[i].shootProj[j])
+			ghost1[i].projs[j].destroy();
 	   } 
 	   }
 	  	if(bulletsOutOfScreen(ghost1[i])) {
@@ -418,7 +461,7 @@ function Tick(runtime)
 	yeniseiMove(yenisei, keyboard, playerSpeed, dt);
 	hildegardeMove(hildegarde, keyboard);
 	
-	if(keyboard.isKeyDown("KeyZ")){
+	if(keyboard.isKeyDown("KeyZ") && !hildegarde.death && !hildegarde.attackDirection == 0){
 		hildegarde.projectileTicks++;
 		if(hildegarde.projectileTicks % 15 == 0) { 
 		HGProjs[hildegarde.projectilesShot] = runtime.objects.HGArrow.createInstance(4, hildegarde.x, hildegarde.y);
